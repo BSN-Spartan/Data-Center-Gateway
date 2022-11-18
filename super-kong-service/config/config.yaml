@@ -1,0 +1,6 @@
+Redis:
+  redisHost: 10.0.51.204:6379
+  redisPW: "123456"
+  redisDb: 0
+KeySymbol: "ddc"
+ServerPort: 18899

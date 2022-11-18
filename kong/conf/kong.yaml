@@ -1,0 +1,146 @@
+_format_version: "1.1"
+consumers:
+- basicauth_credentials:
+  - password: abc123
+    username: admin
+  custom_id: admin
+  username: admin
+services:
+- connect_timeout: 60000
+  host: super-kong-service
+  name: gateway-service
+  port: 18899
+  protocol: http
+  read_timeout: 60000
+  retries: 5
+  routes:
+  - https_redirect_status_code: 426
+    name: gateway-route
+    path_handling: v1
+    paths:
+    - /gateway/api/v0/[\s\S]*
+    plugins:
+    - config:
+        anonymous: null
+        hide_credentials: true
+      enabled: true
+      name: basic-auth
+      protocols:
+      - grpc
+      - grpcs
+      - http
+      - https
+    preserve_host: false
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: false
+  write_timeout: 60000
+- connect_timeout: 60000
+  host: localhost
+  name: grpc-service
+  port: 80
+  protocol: grpc
+  read_timeout: 60000
+  retries: 5
+  routes:
+  - https_redirect_status_code: 426
+    name: grpc-route
+    path_handling: v1
+    paths:
+    - /
+    plugins:
+    - config:
+        accessKey_header_name: x-api-key
+        chainType_header_name: x-api-chain-type
+        cutReqChainType: null
+        day: null
+        fault_tolerant: true
+        hour: null
+        ifCutReq: false
+        keySymbol: ddc
+        minute: null
+        month: null
+        redis_database: 0
+        redis_host: 10.0.51.127
+        redis_password: "123456"
+        redis_port: 6379
+        redis_server_name: null
+        redis_ssl: false
+        redis_ssl_verify: false
+        redis_timeout: 60000
+        second: 20
+        year: null
+      enabled: true
+      name: access-key-auth-with-grpc
+      protocols:
+      - grpc
+      - grpcs
+      - http
+      - https
+    preserve_host: false
+    protocols:
+    - grpc
+    - grpcs
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: false
+  write_timeout: 60000
+- connect_timeout: 60000
+  host: localhost
+  name: http-service
+  port: 80
+  protocol: http
+  read_timeout: 60000
+  retries: 5
+  routes:
+  - https_redirect_status_code: 426
+    name: http-route
+    path_handling: v1
+    paths:
+    - /api/[0-9a-zA-Z]*/[0-9a-zA-Z]*/((rest2)|(rpc)|(rest)|(ws)|(evmrpc)|(evmws))(/[\s\S]*)*
+    plugins:
+    - config:
+        cutReqChainType: null
+        day: null
+        fault_tolerant: true
+        header_name: null
+        hide_client_headers: false
+        hour: null
+        ifCutReq: false
+        keySymbol: ddc
+        limit_by: path
+        minute: null
+        month: null
+        path: /
+        policy: redis
+        redis_database: 0
+        redis_host: 10.0.51.127
+        redis_password: "123456"
+        redis_port: 6379
+        redis_server_name: null
+        redis_ssl: false
+        redis_ssl_verify: false
+        redis_timeout: 60000
+        second: 20
+        year: null
+      enabled: true
+      name: access-key-auth-with-http
+      protocols:
+      - grpc
+      - grpcs
+      - http
+      - https
+    preserve_host: false
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: false
+  write_timeout: 60000
