@@ -88,11 +88,11 @@ Edit `Data-Center-Gateway/super-kong-service/config/config.yaml`:
 
 ```shell
 Redis:
-  redisHost: 10.0.51.127:6379 // redis_IP:Port  Need to be consistent with the plugin configuration below
-  redisPW: "123456"			  // Redis password   Need to be consistent with the plugin configuration below
-  redisDb: 0				  // Redis database  Need to be consistent with the plugin configuration below
-KeySymbol: "ddc"			  // symbol of the Redis storage key，Needs to be consistent with the keySymbol configured in the plugin below
-ServerPort: 18899   		  // microservice API port number
+  redisHost: localhost:6379    // redis_IP:Port  Need to be consistent with the plugin configuration below
+  redisPW: "password"		   // Redis password   Need to be consistent with the plugin configuration below
+  redisDb: 0		           // Redis database  Need to be consistent with the plugin configuration below
+KeySymbol: "spartan"  //symbol of the Redis storage key，Needs to be consistent with the keySymbol configured in the plugin below
+ServerPort: 18899   		   // microservice API port number
 ```
 
 Start the gateway by Docker: 
