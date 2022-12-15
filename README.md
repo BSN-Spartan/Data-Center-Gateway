@@ -20,7 +20,10 @@ This document is a tutorial for Data Centers to install and configure their own 
 
 ### Prerequisites：
 
-- Redis 6.0.5 or later
+- redis 6.0.5+
+- git 2.39.0+
+- docker 20.10.21+
+- docker-compose 1.25.5+
 
 ### Project Dependencies: 
 
@@ -32,7 +35,7 @@ konga: visual configuration web service of the gateway
 
 kong-service: microservice of the gateway
 
-redis: gateway's access key authentication and flow restriction
+redis: used to store the user's access key, the gateway's TPS and TPD flow restriction is also based on redis implementation
 
 
 ### Installation: 
@@ -137,7 +140,7 @@ After successful registration and login, configure the Kong Admin URL:
 
 ![image-20221109095132372](./image/konga-conn.png)
 
-Username: admin(custom) 
+Username: admin // this value can be defined by yourself
 
 URL: http://super-kong:8001
 
@@ -160,13 +163,17 @@ The configuration of gateway initialization was imported in prior, Kong gateway 
 
 The upstream name format is (lowercase): chainType + "-" + chainPort 
 
+Example: spartanone-rpc
+
 The upstream name must be configured in this format, and other parameters are optional.
 
-Example: spartanone-rpc
+First you need to enter your upstream name in the format, then click the Submit button to save it, then click the `Details` button, and finally select `Targets` and configure your node address and port.
+
+
 
 ![image-20221111145527194](./image/upstream-name.png)
 
-Then, configure Targets in the format of IP:Port
+Then, configure Targets in the format of IP:Port  // This is the rpc address and port of your node, make sure kong can communicate directly with your node address properly
 
 Example: 10.0.51.134:20004
 
@@ -205,6 +212,8 @@ Leave other parameters unchanged.
 Create a user and configure Basic Auth: 
 
 The username and password need to be configured into the operations and maintenance system, and will be used when the system requests the gateway microservice interface.
+
+Username: admin(custom) changes to Username: admin // this value can be defined by yourself
 
 ![image-20221111150227731](./image/consumer1.png)
 
