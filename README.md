@@ -1,10 +1,10 @@
 # Data-Center-Gateway
 
-## Introduction
+## 1. Introduction
 
-This document is a tutorial for Data Centers to install and configure their own gateways
+This document is a tutorial for Data Center Operators to install and configure their own gateways
 
-### Hardware Requirments：
+### 1.1 Hardware Requirements
 
 #### Minimum Requirements
 
@@ -18,14 +18,19 @@ This document is a tutorial for Data Centers to install and configure their own 
 - Memory: 32GB
 - Disk: 100GB SSD
 
-### Prerequisites：
+### 1.2 Prerequisites
 
-- redis 6.0.5+
-- git 2.39.0+
-- docker 20.10.21+
-- docker-compose 1.25.5+
+| Software  | Version  |
+| ----- | ----- | 
+| redis | 6.0.5+ |
+| git | 2.39.0+ |
+| docker-ce | 20.10.21+ |
+| docker-compose | 1.25.5+ |
+| [Spartan-I Chain Default Node](https://github.com/BSN-Spartan/NC-Ethereum) | - |
+| [Data Center Management System](https://github.com/BSN-Spartan/Data-Center-System) |1.1.0+|
+| tree (optional) | 1.6.0 |
 
-### Project Dependencies: 
+### 1.3 Project Dependencies
 
 kong: Kong API gateway
 
@@ -38,9 +43,9 @@ kong-service: microservice of the gateway
 redis: used to store the user's access key, the gateway's TPS and TPD flow restriction is also based on redis implementation
 
 
-### Installation: 
+## 2. Installation: 
 
-Clone the project : 
+Create a working directory and clone the project: 
 
 ```shell
 git clone https://github.com/BSN-Spartan/Data-Center-Gateway.git
@@ -126,11 +131,13 @@ The contains has been started:
 
 
 
-### Configuration: 
+## 3. Configuration
+
+### 3.1 Konga Initialization
 
 Initialize konga, open konga in the browser: 
 
-http://[Kong gateway IP]:1337
+http://Kong_gateway_IP:1337
 
 Register a user: 
 
@@ -155,7 +162,7 @@ You can connect to Kong gateway after correctly configuring the parameters above
 The configuration of gateway initialization was imported in prior, Kong gateway can run normally just by adding the upstream configuration and editing the configuration of the plug-in.
 
 
-##### 1. Configure Upstream
+### 3.2 Configure Upstream
 
 ![image-20221108143011912](./image/upstream.png)
 
@@ -173,16 +180,16 @@ First you need to enter your upstream name in the format, then click the Submit 
 
 ![image-20221111145527194](./image/upstream-name.png)
 
-Then, configure Targets in the format of IP:Port  // This is the rpc address and port of your node, make sure kong can communicate directly with your node address properly
+Then, configure Targets in the format of `<Kong VM Public IP>:<Port>`   //This is the rpc address and port of your node, make sure kong can communicate directly with your node address properly
 
-Example: 10.0.51.134:20004
+Example: 10.0.51.134:8545
 
 **Targets need to be configured with at least one, which is the address of the node that will ultimately receive the transaction.**
 
 ![image-20221108143109646](./image/target.png)
 
 
-##### 2. Configure Plugins
+### 3.3 Configure Plugins
 
 Plugin name: `access-key-auth-with-http`
 
@@ -207,17 +214,15 @@ Leave other parameters unchanged.
 ![image-20221111145941725](./image/p2.png)
 
 
-##### 3. Configure Consumers
+### 3.4 Configure Consumers
 
 Create a user and configure Basic Auth: 
 
-The username and password need to be configured into the operations and maintenance system, and will be used when the system requests the gateway microservice interface.
+The username and password need to be configured into Data Center Operator's operations and maintenance system, and will be used when the system requests the gateway microservice interface.
 
-Username: admin(custom) changes to Username: admin // this value can be defined by yourself
+Username: admin // this value can be defined by yourself
 
 ![image-20221111150227731](./image/consumer1.png)
-
-
 
 ![image-20221111150257902](./image/consumer2.png)
 
@@ -227,13 +232,15 @@ Username: admin(custom) changes to Username: admin // this value can be defined 
 
 
 
-## Key Configurations: 
+## 4. Key Parameters
+
+### 4.1 Key Configurations
 
 1. The Redis configuration in the microservice needs to be consistent with the Redis configuration in the 2 plugins, otherwise it cannot authenticate and limit the flow.
 
 2. The name of the pubic chainType should be consistent with the chainType in the upstream name, otherwise the requests cannot be forwarded to the correct target node
 
-3. When creating the Consumer in the gateway, the username and password of Basic Auth need to be configured to the operations and maintenance system, otherwise the system can not request the gateway microservice interface.
+3. When creating the Consumer in the gateway, the username and password of Basic Auth need to be configured to the operations and maintenance system, otherwise the system cannot request the gateway microservice interface.
 
 4. For security reason, the port of Kong gateway related management interface is not open, see docker-compose file for more details. The communication between kong, konga and microservices is via Docker's virtual network.
 
@@ -241,7 +248,7 @@ Username: admin(custom) changes to Username: admin // this value can be defined 
 
 
 
-### Public Ports of Kong Gateway: 
+### 4.2 Public Ports of Kong Gateway 
 
 18601: http/websocket port
 
@@ -253,7 +260,7 @@ Username: admin(custom) changes to Username: admin // this value can be defined 
 
 
 
-### Key Request Parameters of Kong Gateway: 
+### 4.3 Key Request Parameters of Kong Gateway
 
 Access key: accessKey
 
@@ -261,17 +268,17 @@ Target chain: chainType
 
 Interface type of user requests: chainPort
 
-#### Kong Gateway Request Format: 
+### 4.4 Kong Gateway Request Format
 
-##### HTTP Request: 
+#### 4.4.1 HTTP Request
 
 https://[domain_name:port]/api/[accessKey]/[chainType]/[chainPort]/[path_on_chain]
 
 *Note: `path_on_chain` is optional*
 
-Example: https://spartangate.com:12345/api/015416c06ef74ac38a92521792f97e7d/spartanone/rpc
+Example: https://spartangate.com:18601/api/015416c06ef74ac38a92521792f97e7d/spartanone/rpc
 
-##### Websocket Request: 
+#### 4.4.2 Websocket Request
 
 wss://[domain_name:port]/api/[accessKey]/[chainType]/ws/[path_on_chain]
 
@@ -279,19 +286,18 @@ wss://[domain_name:port]/api/[accessKey]/[chainType]/ws/[path_on_chain]
 
 Example: wss://spartangate.com:12345/api/015416c06ef74ac38a92521792f97e7d/spartanone/ws
 
-##### grpc Request: 
+#### 4.4.3 grpc Request
 
 [domain_name:port]
 
-##### Request Header: 
+#### 4.4.4 Request Header
 
 x-api-key:[accessKey]
 
 x-api-chain-type:[chainType]
 
 
-
-### Verification Steps: 
+### 4.5 Verification Steps
 
 1. Obtain gateway access information in the data center portal.
 2. Request the gateway interface in the correct format and verify if the request can be successful.
@@ -300,7 +306,7 @@ x-api-chain-type:[chainType]
 
 
 
-### Documentation: 
+## 5. Resources
 
 #### Installation and configuration of Redis: 
 
